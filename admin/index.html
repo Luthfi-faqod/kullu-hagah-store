@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Kullu Hagah Store</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/admin.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>" />
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+     LOGIN SCREEN
+════════════════════════════════════════ -->
+<div class="login-screen" id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">🔐</div>
+    <div class="login-title">Admin Login</div>
+    <div class="login-sub">Kullu Hagah Store Dashboard</div>
+    <input type="password" class="login-input" id="admin-pw" placeholder="Masukkan password admin" />
+    <button class="login-btn" onclick="adminLogin()">Masuk</button>
+    <div class="login-error" id="login-error">❌ Password salah, coba lagi.</div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     ADMIN APP
+════════════════════════════════════════ -->
+<div class="admin-layout" id="admin-app" style="display:none">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="admin-sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-store-name">🛍️ Kullu Hagah</div>
+      <div class="sidebar-role">Administrator Panel</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item" data-nav="dashboard" onclick="showAdminSection('dashboard')">
+        <span class="nav-icon">📊</span> Dashboard
+      </div>
+      <div class="nav-item" data-nav="categories" onclick="showAdminSection('categories')">
+        <span class="nav-icon">📂</span> Kategori
+      </div>
+      <div class="nav-item" data-nav="products" onclick="showAdminSection('products')">
+        <span class="nav-icon">📱</span> Produk
+      </div>
+      <div class="nav-item" data-nav="settings" onclick="showAdminSection('settings')">
+        <span class="nav-icon">⚙️</span> Pengaturan
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="../index.html" target="_blank" class="btn btn-outline btn-sm" style="width:100%;justify-content:center;display:flex;margin-bottom:8px;text-decoration:none">🛍️ Lihat Toko</a>
+      <div class="nav-item" onclick="adminLogout()" style="color:var(--danger)">
+        <span class="nav-icon">🚪</span> Logout
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="admin-main">
+
+    <!-- TOPBAR -->
+    <div class="admin-topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="btn btn-sm btn-outline" onclick="document.getElementById('admin-sidebar').classList.toggle('open')" style="display:none" id="menu-toggle">☰</button>
+        <span class="topbar-title" id="topbar-title">Dashboard</span>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-sm btn-outline" id="admin-theme-btn" onclick="toggleAdminTheme()">🌙</button>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="admin-content">
+
+      <!-- ── DASHBOARD ── -->
+      <div class="admin-section" id="sec-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">📂 Kategori</div>
+            <div class="stat-value" id="stat-cats">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">📋 Sub-Kategori</div>
+            <div class="stat-value" id="stat-subcats">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">📱 Total Produk</div>
+            <div class="stat-value" id="stat-prods">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">🛒 Di Keranjang</div>
+            <div class="stat-value" id="stat-cart">—</div>
+          </div>
+        </div>
+
+        <div class="alert alert-info">
+          💡 Selamat datang di dashboard admin. Kelola kategori, sub-kategori, dan produk dari menu di samping.
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">⚡ Aksi Cepat</span>
+          </div>
+          <div class="panel-body" style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-primary" onclick="showAdminSection('categories'); openAddCategoryDrawer()">➕ Tambah Kategori</button>
+            <button class="btn btn-success" onclick="showAdminSection('products'); openAddProductDrawer()">➕ Tambah Produk</button>
+            <a href="../index.html" target="_blank" class="btn btn-outline" style="text-decoration:none">🛍️ Buka Toko</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── CATEGORIES ── -->
+      <div class="admin-section" id="sec-categories" style="display:none">
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">📂 Kelola Kategori</span>
+            <button class="btn btn-primary btn-sm" onclick="openAddCategoryDrawer()">➕ Tambah</button>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Icon</th>
+                  <th>Nama</th>
+                  <th>Sub-Kategori</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="cats-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Sub-category Manager -->
+        <div id="subcat-manager" style="display:none">
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title" id="subcat-section-title">Sub-Kategori</span>
+              <button class="btn btn-success btn-sm" id="subcat-add-btn">➕ Tambah</button>
+            </div>
+            <div style="overflow-x:auto">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Nama</th>
+                    <th>Produk</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="subcats-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PRODUCTS ── -->
+      <div class="admin-section" id="sec-products" style="display:none">
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">📱 Kelola Produk</span>
+            <button class="btn btn-primary btn-sm" onclick="openAddProductDrawer()">➕ Tambah Produk</button>
+          </div>
+          <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;gap:10px;flex-wrap:wrap">
+            <select class="form-select" id="prod-filter-cat" style="width:auto;min-width:160px">
+              <option value="">Semua Kategori</option>
+            </select>
+            <select class="form-select" id="prod-filter-sub" style="width:auto;min-width:180px">
+              <option value="">Semua Sub-Kategori</option>
+            </select>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Kategori</th>
+                  <th>Pulsa</th>
+                  <th>Data</th>
+                  <th>Harga EGP</th>
+                  <th>Harga IDR</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="prods-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SETTINGS ── -->
+      <div class="admin-section" id="sec-settings" style="display:none">
+
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">💱 Pengaturan Konversi Harga</span>
+          </div>
+          <div class="panel-body">
+            <div class="alert alert-warning" style="margin-bottom:16px">
+              ⚠️ Jika toggle konversi diaktifkan, harga akan dihitung otomatis dari rate yang ditentukan.
+            </div>
+
+            <div class="toggle-row">
+              <div class="toggle-label-group">
+                <div class="toggle-label-title">Auto Konversi EGP → IDR</div>
+                <div class="toggle-label-sub">Hitung harga IDR otomatis dari nilai EGP × rate</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="toggle-egp-idr" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="form-group" style="margin-top:12px">
+              <label class="form-label">Rate: 1 EGP = ? IDR</label>
+              <input type="number" class="form-input" id="rate-egp-idr" placeholder="Contoh: 355" style="max-width:200px"/>
+            </div>
+
+            <div class="toggle-row">
+              <div class="toggle-label-group">
+                <div class="toggle-label-title">Auto Konversi IDR → EGP</div>
+                <div class="toggle-label-sub">Hitung harga EGP otomatis dari nilai IDR ÷ rate</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="toggle-idr-egp" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="form-group" style="margin-top:12px">
+              <label class="form-label">Rate: 1 IDR = ? EGP</label>
+              <input type="number" class="form-input" id="rate-idr-egp" placeholder="Contoh: 0.0028" step="0.0001" style="max-width:200px"/>
+            </div>
+
+            <button class="btn btn-primary" onclick="saveSettingsAdmin()" style="margin-top:16px">💾 Simpan Pengaturan</button>
+          </div>
+        </div>
+
+      </div>
+
+    </div><!-- /admin-content -->
+  </div><!-- /admin-main -->
+</div><!-- /admin-layout -->
+
+<!-- ════════════════════════════════════════
+     DRAWERS
+════════════════════════════════════════ -->
+
+<!-- Category Drawer -->
+<div class="drawer-overlay" id="cat-drawer-overlay" onclick="if(event.target===this)closeDrawer('cat-drawer')">
+  <div class="drawer">
+    <div class="drawer-header">
+      <div class="drawer-title" id="cat-drawer-title">Kategori</div>
+      <button class="modal-close" onclick="closeDrawer('cat-drawer')">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Nama Kategori</label>
+      <input type="text" class="form-input" id="cat-name-input" placeholder="Misal: Pulsa" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Icon (Emoji)</label>
+      <input type="text" class="form-input" id="cat-icon-input" placeholder="Misal: 📱" />
+    </div>
+    <button class="btn btn-primary" onclick="saveCategoryDrawer()" style="width:100%;margin-top:8px">💾 Simpan</button>
+  </div>
+</div>
+
+<!-- Sub-category Drawer -->
+<div class="drawer-overlay" id="subcat-drawer-overlay" onclick="if(event.target===this)closeDrawer('subcat-drawer')">
+  <div class="drawer">
+    <div class="drawer-header">
+      <div class="drawer-title" id="subcat-drawer-title">Sub-Kategori</div>
+      <button class="modal-close" onclick="closeDrawer('subcat-drawer')">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Nama Sub-Kategori</label>
+      <input type="text" class="form-input" id="subcat-name-input" placeholder="Misal: WE, Orange, dll" />
+    </div>
+    <button class="btn btn-primary" onclick="saveSubcatDrawer()" style="width:100%;margin-top:8px">💾 Simpan</button>
+  </div>
+</div>
+
+<!-- Product Drawer -->
+<div class="drawer-overlay" id="prod-drawer-overlay" onclick="if(event.target===this)closeDrawer('prod-drawer')">
+  <div class="drawer">
+    <div class="drawer-header">
+      <div class="drawer-title" id="prod-drawer-title">Produk</div>
+      <button class="modal-close" onclick="closeDrawer('prod-drawer')">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Kategori</label>
+      <select class="form-select" id="prod-cat-sel"></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Sub-Kategori</label>
+      <select class="form-select" id="prod-sub-sel"></select>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Pulsa (EGP)</label>
+        <input type="text" class="form-input" id="prod-pulsa" placeholder="Misal: 30" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Data</label>
+        <input type="text" class="form-input" id="prod-data" placeholder="Misal: 1.3 GB" />
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Harga EGP</label>
+        <input type="number" class="form-input" id="prod-egp" placeholder="Misal: 50" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Harga IDR</label>
+        <input type="number" class="form-input" id="prod-idr" placeholder="Misal: 18000" />
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="saveProductDrawer()" style="width:100%;margin-top:8px">💾 Simpan Produk</button>
+  </div>
+</div>
+
+<!-- ── Confirm Dialog ── -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <div class="confirm-icon">⚠️</div>
+    <div class="confirm-title">Konfirmasi Hapus</div>
+    <div class="confirm-msg" id="confirm-msg"></div>
+    <div class="confirm-actions">
+      <button class="btn btn-outline" onclick="confirmNo()" style="flex:1">Batal</button>
+      <button class="btn btn-danger" onclick="confirmYes()" style="flex:1">Ya, Hapus</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Admin Toast ── -->
+<div class="admin-toast" id="admin-toast"></div>
+
+  <!-- ── Scripts ── -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/data.js"></script>
+  <script src="../js/admin.js"></script>
+</body>
+</html>
