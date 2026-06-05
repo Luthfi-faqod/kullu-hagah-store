@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kullu Hagah Store</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛍️</text></svg>" />
+</head>
+<body>
+
+  <!-- ── NAVBAR ── -->
+  <nav class="navbar">
+    <div class="navbar-brand" onclick="navigate('home')" style="cursor:pointer">
+      <span class="store-name">Kullu Hagah Store</span>
+      <span class="store-since">Sejak 2024</span>
+    </div>
+    <div class="navbar-actions">
+      <button class="btn-icon" id="theme-toggle" onclick="toggleTheme()" title="Toggle tema">🌙</button>
+      <button class="btn-icon" onclick="navigate('cart'); renderCart();" title="Keranjang">
+        🛒
+        <span class="cart-badge" id="cart-badge" style="display:none">0</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ════════════════════════════════════════
+       PAGE: HOME
+  ════════════════════════════════════════ -->
+  <div class="page active" id="page-home">
+    <div class="hero">
+      <h1><span>Kullu Hagah</span> Store</h1>
+      <p class="since">✦ Sejak 2024 ✦</p>
+    </div>
+
+    <p class="section-title">Kategori</p>
+    <div class="categories-grid" id="categories-grid"></div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       PAGE: SUBCATEGORY
+  ════════════════════════════════════════ -->
+  <div class="page" id="page-subcategory">
+    <button class="btn-back" onclick="navigate('home')">← Kembali</button>
+
+    <div class="breadcrumb">
+      <span onclick="navigate('home')">Home</span>
+      <span class="sep">/</span>
+      <span class="current" id="subcat-title">Pulsa</span>
+    </div>
+
+    <p class="section-title">Pilih Provider</p>
+    <div class="subcategory-list" id="subcategory-list"></div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       PAGE: PRODUCTS
+  ════════════════════════════════════════ -->
+  <div class="page" id="page-products">
+    <button class="btn-back" onclick="navigate('subcategory')">← Kembali</button>
+
+    <div class="breadcrumb">
+      <span onclick="navigate('home')">Home</span>
+      <span class="sep">/</span>
+      <span onclick="navigate('subcategory')" id="prod-cat-name">Pulsa</span>
+      <span class="sep">/</span>
+      <span class="current" id="prod-sub-name">WE</span>
+    </div>
+
+    <p class="section-title" id="prod-sub-name-title">Produk</p>
+
+    <div class="product-table-wrap">
+      <table class="product-table">
+        <thead>
+          <tr>
+            <th>Pulsa</th>
+            <th>Data</th>
+            <th>Harga EGP</th>
+            <th>Harga IDR</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="products-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       PAGE: CART
+  ════════════════════════════════════════ -->
+  <div class="page" id="page-cart">
+    <button class="btn-back" onclick="navigate('home')">← Lanjut Belanja</button>
+
+    <div class="breadcrumb">
+      <span onclick="navigate('home')">Home</span>
+      <span class="sep">/</span>
+      <span class="current">Keranjang</span>
+    </div>
+
+    <p class="section-title">🛒 Keranjang Belanja</p>
+    <div id="cart-content"></div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       MODAL: ORDER
+  ════════════════════════════════════════ -->
+  <div class="modal-overlay" id="order-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">🛍️ Detail Pesanan</div>
+        <button class="modal-close" onclick="closeOrderModal()">✕</button>
+      </div>
+
+      <!-- Product Summary -->
+      <div class="product-summary-box">
+        <div class="ps-name" id="modal-prod-name"></div>
+        <div class="ps-price" id="modal-prod-detail"></div>
+      </div>
+
+      <!-- Phone -->
+      <div class="form-group">
+        <label class="form-label">📞 Nomor HP Mesir</label>
+        <input type="tel" class="form-input" id="order-phone" placeholder="Contoh: 01012345678" />
+      </div>
+
+      <!-- Payment -->
+      <div class="form-group">
+        <label class="form-label">💳 Metode Pembayaran</label>
+        <div class="payment-options">
+          <div class="payment-opt" id="pay-tf" onclick="setPayment('tf')">
+            🏦 Transfer
+          </div>
+          <div class="payment-opt" id="pay-cash" onclick="setPayment('cash')">
+            💵 Cash
+          </div>
+        </div>
+      </div>
+
+      <!-- Cash Form (hidden by default) -->
+      <div id="cash-form-section" style="display:none">
+        <div class="cash-form">
+          <div class="cash-form-title">📋 Info Pengiriman Cash</div>
+          <div class="form-group">
+            <label class="form-label">Nama Pembeli</label>
+            <input type="text" class="form-input" id="order-name" placeholder="Nama lengkap" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Alamat Lengkap</label>
+            <textarea class="form-textarea" id="order-address" rows="3" placeholder="Alamat pengiriman lengkap..."></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Foto Imaroh (Opsional)</label>
+            <label class="file-upload" for="order-imaroh">
+              📎 Klik untuk upload foto imaroh
+              <input type="file" id="order-imaroh" accept="image/*" style="display:none" />
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="addToCart()" style="margin-top:8px">
+        🛒 Tambah ke Keranjang
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Toast ── -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ── Scripts ── -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
